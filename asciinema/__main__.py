@@ -76,6 +76,7 @@ For help on a specific command run:
     parser_rec.add_argument('-y', '--yes', help='answer "yes" to all prompts (e.g. upload confirmation)', action='store_true', default=cfg.record_yes)
     parser_rec.add_argument('-q', '--quiet', help='be quiet, suppress all notices/warnings (implies -y)', action='store_true', default=cfg.record_quiet)
     parser_rec.add_argument('filename', nargs='?', default='', help='filename/path to save the recording to')
+    parser_rec.add_argument('--vm', help='enable vm recording', action='store_true', default=False)
     parser_rec.set_defaults(cmd=RecordCommand)
 
     # create the parser for the "play" command
