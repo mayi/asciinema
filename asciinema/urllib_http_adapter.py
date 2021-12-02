@@ -104,6 +104,8 @@ class URLLibHttpAdapter:
 
         request = Request(url, data=body, headers=headers, method="POST")
 
+        print(body)
+        
         try:
             response = urlopen(request)
             status = response.status
