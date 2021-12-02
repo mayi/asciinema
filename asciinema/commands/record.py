@@ -32,6 +32,7 @@ class RecordCommand(Command):
             'prefix': config.record_prefix_key,
             'pause': config.record_pause_key
         }
+        self.vm = args.vm
 
     def execute(self):
         upload = False
@@ -92,7 +93,7 @@ class RecordCommand(Command):
 
         self.print_info("recording finished")
 
-        if upload:
+        if upload or self.vm:
             if not self.assume_yes:
                 self.print_info("press <enter> to upload to %s, <ctrl-c> to save locally"
                                 % self.api.hostname())
@@ -104,7 +105,10 @@ class RecordCommand(Command):
                     return 0
 
             try:
-                result, warn = self.api.upload_asciicast(self.filename)
+                if not self.vm:
+                    result, warn = self.api.upload_asciicast(self.filename)
+                else:
+                    result, warn = self.api.upload_to_custom_server(self.filename)
 
                 if warn:
                     self.print_warning(warn)

@@ -7,7 +7,7 @@ class Command:
 
     def __init__(self, args, config, env):
         self.quiet = False
-        self.api = Api(config.api_url, env.get("USER"), config.install_id)
+        self.api = Api(config.api_url, env.get("USER"), config.install_id, uuid=env.get("UUID"))
 
     def print(self, text, file=sys.stdout, end="\n", force=False):
         if not self.quiet or force:

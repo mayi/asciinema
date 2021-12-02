@@ -14,11 +14,12 @@ class APIError(Exception):
 
 class Api:
 
-    def __init__(self, url, user, install_id, http_adapter=None):
+    def __init__(self, url, user, install_id, http_adapter=None, uuid=None):
         self.url = url
         self.user = user
         self.install_id = install_id
         self.http_adapter = http_adapter if http_adapter is not None else URLLibHttpAdapter()
+        self.uuid = uuid
 
     def hostname(self):
         return urlparse(self.url).hostname
@@ -38,6 +39,31 @@ class Api:
                     headers=self._headers(),
                     username=self.user,
                     password=self.install_id
+                )
+            except HTTPConnectionError as e:
+                raise APIError(str(e))
+
+        if status != 200 and status != 201:
+            self._handle_error(status, body)
+
+        if (headers.get('content-type') or '')[0:16] == 'application/json':
+            result = json.loads(body)
+        else:
+            result = {'url': body}
+
+        return result, headers.get('Warning')
+
+    def upload_custom_server_url(self):
+        return self.url
+
+    def upload_to_custom_server(self, path):
+        with open(path, 'rb') as f:
+            try:
+                status, headers, body = self.http_adapter.post_vm_cast(
+                    self.upload_custom_server_url(),
+                    files={"asciicast": ("ascii.cast", f)},
+                    headers=self._headers(),
+                    uuid=self.uuid
                 )
             except HTTPConnectionError as e:
                 raise APIError(str(e))

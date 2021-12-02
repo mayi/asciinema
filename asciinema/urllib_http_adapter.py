@@ -92,3 +92,28 @@ class URLLibHttpAdapter:
             headers[k.lower()] = v
 
         return headers
+
+    def post_vm_cast(self, url, fields={}, files={}, headers={}, uuid=None):
+        content_type, body = MultipartFormdataEncoder().encode(fields, files)
+
+        headers = headers.copy()
+        headers["Content-Type"] = content_type
+
+        if uuid:
+            headers["X-UUID"] = uuid
+
+        request = Request(url, data=body, headers=headers, method="POST")
+
+        try:
+            response = urlopen(request)
+            status = response.status
+            headers = self._parse_headers(response)
+            body = response.read().decode('utf-8')
+        except HTTPError as e:
+            status = e.code
+            headers = {}
+            body = e.read().decode('utf-8')
+        except (http.client.RemoteDisconnected, URLError) as e:
+            raise HTTPConnectionError(str(e))
+
+        return (status, headers, body)
